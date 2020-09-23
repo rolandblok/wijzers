@@ -1,191 +1,145 @@
-function init() {
-  wijzers = new Wijzers("wijzers");
-  wijzers.animLoop();
-}
 
 
 class Wijzers {
 
-  constructor(name) {
-
-      this.name = name;
- 
-      this.canvas = document.getElementById("canvas");
-      this.canvas.addEventListener("mousedown", this, false);
-      this.canvas.addEventListener("mouseup", this, false);
-      this.canvas.addEventListener("mousemove", this, false);
-      this.canvas.addEventListener("click", this, false);
-      this.canvas.addEventListener("dblclick", this, false);
-      //this.canvas.addEventListener("resize", this, false);
-
-      this.canvas.addEventListener('keydown', this, false);
-      this.canvas.addEventListener('keyup', this, false);
-      this.canvas.addEventListener('wheel', this, false);
-      let me = this // this is the-javascript-shiat!  https://stackoverflow.com/questions/4586490/how-to-reference-a-function-from-javascript-class-method
-      window.addEventListener( 'resize', function bla(event) {
-                console.log("resize " + me.name)
-                me.THREEcamera.aspect = window.innerWidth / window.innerHeight;
-                me.THREEcamera.updateProjectionMatrix();
-                me.renderer.setSize(window.innerWidth, window.innerHeight);
-              }, false );
-
-      this.stats = new Stats();
-      document.body.appendChild(this.stats.dom);
-
-      this.rot_speed_x =  0.004;
-      this.rot_speed_y =  0.008;
-
-      this.gui = new dat.GUI();
-      this.gui_speeds = this.gui.addFolder('speeds')
-
-      this.gui_speeds.add(this, "rot_speed_x");
-      this.gui_speeds.add(this, "rot_speed_y");
-      this.gui_speeds.open();
-
-
-      // THREE / GL
-      this.three_scene = new THREE.Scene();
-
-      this.fov = 55
-      this.THREEcamera = new THREE.PerspectiveCamera( this.fov, 1.33, 0.01, 2000 );
-      
-      this.THREEcamera.up = new THREE.Vector3(0,   0,   1)
-      this.THREEcamera.aspect = window.innerWidth / window.innerHeight;
-      this.THREEcamera.fov = this.fov
-      this.THREEcamera.position.set(-15, 0, 0)
-      this.THREEcamera.lookAt(new THREE.Vector3(0,   0,  0))
-      this.THREEcamera.updateProjectionMatrix();
-      
-      this.three_light = new THREE.PointLight( "#ffffff", 1, 0 )
-      this.three_light.position.set(-10, -0, -0)
-      
-      this.three_scene.add( this.three_light );
-
-      this.raycaster = new THREE.Raycaster(); 
-
+    constructor(three_scene) {
 
       this.wijzers = {}
 
       for (let x = -15; x < 16; x++) {
         for (let y = -15; y< 16; y++) {
-          this.wijzers[this.wijzer_index(x,y)]= new Wijzer(this.three_scene, new THREE.Vector3(0, x, y))
+          this.wijzers[this.wi(x,y)]= new Wijzer(three_scene, new THREE.Vector3( x, y, 0))
         }
       }
 
+    }
 
-      this.renderer = new THREE.WebGLRenderer({canvas: this.canvas_g, antialias: true, depth: true});
-      this.renderer.setClearColor( 0xffffff, 1);
-      this.renderer.setSize( window.innerWidth, window.innerHeight);
-      this.canvas = document.body.appendChild(this.renderer.domElement);
-
-     
-      this.last_update_time = null;
-
-  }
-
-  wijzer_index(x,y) {
-    return "" + x + "_" + y
-  }
-
-  animLoop(cur_time_ms) {
-    var me = this; // https://stackoverflow.com/questions/4586490/how-to-reference-a-function-from-javascript-class-method
-    //window.requestAnimationFrame(function (cur_time) { me.drawAndUpdate(cur_time); });
-
-    this.stats.begin();
-
-    //update
-    if(this.last_update_time_ms != null){
-        var d_time_ms = cur_time_ms - this.last_update_time_ms
+    update(d_time_ms) {
         for (let key in this.wijzers) {
-          this.wijzers[key].update(d_time_ms)
+            this.wijzers[key].update(d_time_ms)
         }
     }
-    this.last_update_time_ms = cur_time_ms;
 
-    // draw
-    window.requestAnimationFrame(function (cur_time) { me.animLoop(cur_time); });
-    this.render(d_time_ms);
+    wi(x,y) {  // wijzer index
+        return "" + x + "_" + y
+    }
 
-    this.stats.end();
-
-  }
-
-  render(d_time_ms) {
-
-    this.renderer.render(this.three_scene, this.THREEcamera)
-
-  }
-      
-
-
-
-  _raycastMouseToTile(e){
-    // some raycasting to deterimine the active tile.
-    this.mouse_position.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-    this.mouse_position.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
-    this.raycaster.setFromCamera( this.mouse_position, this.camera.THREEcamera);
-    var intersects = this.raycaster.intersectObjects( this.three_scene.children );
-
-    return intersects.map(x => x.object.name);
-  }
+    /**
+     * get wijzer at position
+     * @param {*} x 
+     * @param {*} y 
+     */
+    w(x,y) {    
+        return this.wijzers[this.wi(x,y)]
+    }
+    /**
+     * get wijzer wrt offset
+     */
+    wo(xo,yo, x, y ) {
+        return this.wijzers[this.wi(xo+x,yo+y)]
+    }
 
 
-  onmousemove(e) {
-    //console.log(" onmousemove : " + e.x + " " + e.y)
-    console.log(" onmousemove : ")
-  }
+    zero(x,y) {
+       
+        this.wo(x,y, 0, 5).target(d, r)
+        this.wo(x,y, 1, 5).target(l, r)
+        this.wo(x,y, 2, 5).target(l, r)
+        this.wo(x,y, 3, 5).target(l, d)
 
-  onmousedown(e) {
-    console.log(" onmousedown : " + e.x + " " + e.y)
-  }
-  onmouseup(e) {
-    console.log(" onmouseup : " + e.x + " " + e.y)
-    // var game_object_ids = this._raycastMouseToTile(e);
-  }
+        this.wo(x,y, 0, 4).target(u, d)
+        this.wo(x,y, 1, 4).target(d, r)
+        this.wo(x,y, 2, 4).target(l, d)
+        this.wo(x,y, 3, 4).target(u, d)
 
-  keyDown(e){
-    console.log(" keyDown : "+ e.x + " " + e.y)
-  }
+        this.wo(x,y, 0, 3).target(u, d)
+        this.wo(x,y, 1, 3).target(u, d)
+        this.wo(x,y, 2, 3).target(u, d)
+        this.wo(x,y, 3, 3).target(u, d)
 
-  keyUp(e){
-    console.log(" keyUp : "+ e.x + " " + e.y)
-  }
+        this.wo(x,y, 0, 2).target(u, d)
+        this.wo(x,y, 1, 2).target(u, d)
+        this.wo(x,y, 2, 2).target(u, d)
+        this.wo(x,y, 3, 2).target(u, d)
 
-  wheel(e){
-      console.log(" w " + e.deltaX + " " + e.deltaY + " " + e.deltaZ + " " + e.deltaMode)
-  }
+        this.wo(x,y, 0, 1).target(u, d)
+        this.wo(x,y, 1, 1).target(u, r)
+        this.wo(x,y, 2, 1).target(l, u)
+        this.wo(x,y, 3, 1).target(u, d)
 
-  handleEvent(evt) {
-      //console.log("event type " + evt.type)
-      switch (evt.type) {
-          case "wheel":
-              this.wheel(evt);
-              break;
-          case "keydown":
-              this.keyDown(evt)
-              break;
-          case "mousemove":
-              //mouse move also fires at click...
-              this.onmousemove(evt);
-              break;
-          case "mousedown":
-              this.onmousedown(evt);
-              break;
-          case "mouseup":
-              this.onmouseup(evt);
-              break;
-          case "dblclick":
-              break;
-          case "keydown":
-              this.keyDown(evt);
-              break;
-          case "keyup":
-              this.keyUp(evt);
-              break;
-          default:
-              return;
-      }
-  }
+        this.wo(x,y, 0, 0).target(u, r)
+        this.wo(x,y, 1, 0).target(l, r)
+        this.wo(x,y, 2, 0).target(l, r)
+        this.wo(x,y, 3, 0).target(l, u)
 
 
+    }
+
+    one(x,y) {
+
+        this.wo(x,y, 0, 5).target(d, r)
+        this.wo(x,y, 1, 5).target(l, r)
+        this.wo(x,y, 2, 5).target(l, d)
+        this.wo(x,y, 3, 5).target(dl, dl)
+
+        this.wo(x,y, 0, 4).target(u, r)
+        this.wo(x,y, 1, 4).target(l, d)
+        this.wo(x,y, 2, 4).target(u, d)
+        this.wo(x,y, 3, 4).target(dl, dl)
+
+        this.wo(x,y, 0, 3).target(dl, dl)
+        this.wo(x,y, 1, 3).target(u, d)
+        this.wo(x,y, 2, 3).target(u, d)
+        this.wo(x,y, 3, 3).target(dl, dl)
+
+        this.wo(x,y, 0, 2).target(dl, dl)
+        this.wo(x,y, 1, 2).target(u, d)
+        this.wo(x,y, 2, 2).target(u, d)
+        this.wo(x,y, 3, 2).target(dl, dl)
+
+        this.wo(x,y, 0, 1).target(d, r)
+        this.wo(x,y, 1, 1).target(l, u)
+        this.wo(x,y, 2, 1).target(u, r)
+        this.wo(x,y, 3, 1).target(l, d)
+
+        this.wo(x,y, 0, 0).target(u, r)
+        this.wo(x,y, 1, 0).target(l, r)
+        this.wo(x,y, 2, 0).target(l, r)
+        this.wo(x,y, 3, 0).target(l, u)
+
+    }
+    two(x,y) {
+
+        this.wo(x,y, 0, 5).target(d, r)
+        this.wo(x,y, 1, 5).target(l, r)
+        this.wo(x,y, 2, 5).target(l, r)
+        this.wo(x,y, 3, 5).target(l, d)
+
+        this.wo(x,y, 0, 4).target(u, r)
+        this.wo(x,y, 1, 4).target(l, r)
+        this.wo(x,y, 2, 4).target(l, d)
+        this.wo(x,y, 3, 4).target(u, d)
+
+        this.wo(x,y, 0, 3).target(d, r)
+        this.wo(x,y, 1, 3).target(l, r)
+        this.wo(x,y, 2, 3).target(l, u)
+        this.wo(x,y, 3, 3).target(u, d)
+
+        this.wo(x,y, 0, 2).target(u, d)
+        this.wo(x,y, 1, 2).target(d, r)
+        this.wo(x,y, 2, 2).target(l, r)
+        this.wo(x,y, 3, 2).target(u, l)
+
+        this.wo(x,y, 0, 1).target(u, d)
+        this.wo(x,y, 1, 1).target(u, r)
+        this.wo(x,y, 2, 1).target(l, r)
+        this.wo(x,y, 3, 1).target(l, d)
+
+        this.wo(x,y, 0, 0).target(u, r)
+        this.wo(x,y, 1, 0).target(l, r)
+        this.wo(x,y, 2, 0).target(l, r)
+        this.wo(x,y, 3, 0).target(l, u)
+
+    }
+    
 }
