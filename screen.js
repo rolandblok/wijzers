@@ -52,7 +52,7 @@ class Screen {
       //this.THREEcamera.up = new THREE.Vector3(0,   1,   0)
       this.THREEcamera.aspect = window.innerWidth / window.innerHeight;
       this.THREEcamera.fov = this.fov
-      this.THREEcamera.position.set(0, 0, 15)
+      this.THREEcamera.position.set(0, 0, 20)
       this.THREEcamera.lookAt(new THREE.Vector3(0,   0,  0))
       this.THREEcamera.updateProjectionMatrix();
       
@@ -64,9 +64,18 @@ class Screen {
       this.raycaster = new THREE.Raycaster(); 
 
       this.wijzers = new Wijzers(this.three_scene)
-      this.wijzers.zero(-10,0)
-      this.wijzers.one(-6,0)
-      this.wijzers.two(-2,0)
+      this.wijzers.zero(-14,1)
+      this.wijzers.one(-10,1)
+      this.wijzers.two(-6,1)
+      this.wijzers.three(-2,1)
+      this.wijzers.four(2,1)
+
+      this.wijzers.five(-5,-6)
+      this.wijzers.six(-1,-6)
+      this.wijzers.seven(3,-6)
+      this.wijzers.eight(7,-6)
+      this.wijzers.nine(11,-6)
+
 
       this.renderer = new THREE.WebGLRenderer({canvas: this.canvas_g, antialias: true, depth: true});
       this.renderer.setClearColor( 0xffffff, 1);
