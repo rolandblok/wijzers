@@ -11,9 +11,8 @@ class Wijzer {
         this.pos = pos
         this.wijzer_len = 0.45
         this.wijzer1_angle = 0
-        this.wijzer1_speed = 0.5 + Math.random() / 2.0
         this.wijzer2_angle = 0
-        this.wijzer2_speed = 0.5 + Math.random() / 2.0
+        this.random_speed()
         this.wijzer1_angle_target = 0
         this.wijzer1_angle_target_set = false; 
         this.wijzer2_angle_target = 0
@@ -73,6 +72,11 @@ class Wijzer {
         this.wijzer2_line.rotation.z = -this.wijzer2_angle
         this.wijzer2_line.position.x = this.pos.x
         this.wijzer2_line.position.y = this.pos.y
+    }
+
+    random_speed( ) {
+        this.wijzer1_speed = 0.5 + Math.random() / 2.0
+        this.wijzer2_speed = 0.5 + Math.random() / 2.0
     }
 
     target(angle_1, angle_2) {

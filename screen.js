@@ -1,6 +1,6 @@
 function init() {
   screen = new Screen("wijzers");
-  screen.animLoop();
+  screen.startAnimLoop();
 }
 
 
@@ -32,6 +32,7 @@ class Screen {
       this.stats = new Stats();
       document.body.appendChild(this.stats.dom);
 
+      /*
       this.rot_speed_x =  0.004;
       this.rot_speed_y =  0.008;
 
@@ -41,7 +42,7 @@ class Screen {
       this.gui_speeds.add(this, "rot_speed_x");
       this.gui_speeds.add(this, "rot_speed_y");
       this.gui_speeds.open();
-
+      */
 
       // THREE / GL
       this.three_scene = new THREE.Scene();
@@ -64,18 +65,7 @@ class Screen {
       this.raycaster = new THREE.Raycaster(); 
 
       this.wijzers = new Wijzers(this.three_scene)
-      this.wijzers.zero(-14,1)
-      this.wijzers.one(-10,1)
-      this.wijzers.two(-6,1)
-      this.wijzers.three(-2,1)
-      this.wijzers.four(2,1)
-
-      this.wijzers.five(-5,-6)
-      this.wijzers.six(-1,-6)
-      this.wijzers.seven(3,-6)
-      this.wijzers.eight(7,-6)
-      this.wijzers.nine(11,-6)
-
+      this.show_list = new ShowList(this.wijzers)
 
       this.renderer = new THREE.WebGLRenderer({canvas: this.canvas_g, antialias: true, depth: true});
       this.renderer.setClearColor( 0xffffff, 1);
@@ -83,27 +73,39 @@ class Screen {
       this.canvas = document.body.appendChild(this.renderer.domElement);
 
      
-      this.last_update_time = null;
+      this.last_update_time_ms = null;
 
+
+  }
+
+  
+
+  startAnimLoop() {
+    var me = this;
+    window.requestAnimationFrame(function (cur_time) { me.animLoop(cur_time); });
   }
 
   animLoop(cur_time_ms) {
     var me = this; // https://stackoverflow.com/questions/4586490/how-to-reference-a-function-from-javascript-class-method
-    //window.requestAnimationFrame(function (cur_time) { me.drawAndUpdate(cur_time); });
+    
 
+    if (this.last_update_time_ms == null) {
+      // first time
+    }
     this.stats.begin();
 
     //update
-    if(this.last_update_time_ms != null){
+    if ((this.last_update_time_ms != null) && (cur_time_ms != null)){
         var d_time_ms = cur_time_ms - this.last_update_time_ms
         this.wijzers.update(d_time_ms)
+        this.show_list.update(d_time_ms)
     }
+
     this.last_update_time_ms = cur_time_ms;
 
     // draw
     window.requestAnimationFrame(function (cur_time) { me.animLoop(cur_time); });
     this.render(d_time_ms);
-
     this.stats.end();
 
   }
