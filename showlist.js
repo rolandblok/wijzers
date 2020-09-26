@@ -63,15 +63,15 @@ class ShowList {
 
     set_time() {
         console.log("set_time")
-        let x = -12
+        let x = -10
         let y = -2
 
         let d = new Date()
         let h_str = d.getHours().toString().padStart(2,'0')
         x += 1 + this.wijzers.write(h_str.charAt(0), x, y)
-        x += 1 + this.wijzers.write(h_str.charAt(1), x, y)
+        x += this.wijzers.write(h_str.charAt(1), x, y)
 
-        x += 1 + this.wijzers.write(':', x, y)
+        x += this.wijzers.write(':', x, y)
 
         let m_str = d.getMinutes().toString().padStart(2,'0')
         x += 1 + this.wijzers.write(m_str.charAt(0), x, y)
@@ -84,9 +84,16 @@ class ShowList {
     
     remove_time() {
         console.log("remove_time")
-        let x = -12
+        let x = -10
         let y = -2
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 2; i++) {
+            this.wijzers.erase_number(x, y)
+            x += 1 + this.wijzers.character_width()
+        }
+        this.wijzers.erase_number(x, y)
+        x += -1 + this.wijzers.character_width()
+        
+        for (let i = 0; i < 2; i++) {
             this.wijzers.erase_number(x, y)
             x += 1 + this.wijzers.character_width()
         }
