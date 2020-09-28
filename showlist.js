@@ -4,7 +4,7 @@ class ShowList {
     constructor(wijzers) {
         this.wijzers = wijzers
         this.show_list_iter = 0;
-        this.show_lists = 4
+        this.show_lists = 6
         this.count_down_time = -1;
     }
 
@@ -13,10 +13,12 @@ class ShowList {
 
         if (this.count_down_time < 0) {
 
-            if      (this.show_list_iter == 0) { this.set_time() }
-            else if (this.show_list_iter == 1) { this.remove_time() } 
-            else if (this.show_list_iter == 2) { this.set_one_2_ten() } 
-            else if (this.show_list_iter == 3) { this.remove_one_2_ten() }
+            if (this.show_list_iter == 0) { this.set_text("hello") } 
+            else if (this.show_list_iter == 1) { this.remove_text("hello") }
+            else if (this.show_list_iter == 2) { this.set_time() }
+            else if (this.show_list_iter == 3) { this.remove_time() } 
+            else if (this.show_list_iter == 4) { this.set_one_2_ten() } 
+            else if (this.show_list_iter == 5) { this.remove_one_2_ten() }
             
             this.show_list_iter ++
             if (this.show_list_iter == this.show_lists) {
@@ -100,6 +102,28 @@ class ShowList {
         this.count_down_time =  5000;
     }
 
+    set_text(str) {
+        console.log("set_text " + str)
+        let x = -10
+        let y = -2
+
+        for (let i = 0; i < str.length; i++) {
+            x += 1 + this.wijzers.write(str.charAt(i), x, y)
+        }
+
+        this.count_down_time =  15000
+    }
+    
+    remove_text(str) {
+        console.log("remove_text " + str)
+        let x = -10
+        let y = -2
+        for (let i = 0; i < str.length; i++) {
+            x += 1 + this.wijzers.erase_number( x, y)
+        }
+
+        this.count_down_time =  5000;
+    }
 
 }
         
